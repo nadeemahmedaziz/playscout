@@ -1,8 +1,13 @@
 {
-  "name": "playscout-github-free",
+  "name": "playscout-v2",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12" },
-  "scripts": { "scan": "node scanner.mjs", "check": "node --check scanner.mjs" },
-  "dependencies": { "@mradex77/google-play-scraper": "1.1.0" }
+  "scripts": {
+    "scan": "node scanner.mjs",
+    "backfill": "node scanner.mjs --backfill"
+  },
+  "dependencies": {
+    "@mradex77/google-play-scraper": "1.1.0"
+  }
 }
