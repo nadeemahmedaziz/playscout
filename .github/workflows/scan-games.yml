@@ -1,0 +1,38 @@
+name: Update Google Play game index
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: playscout-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run scan
+
+      - name: Save updated index
+        run: |
+          git config user.name "PlayScout Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/data/games.json
+          git diff --cached --quiet || git commit -m "Update game index"
+          git push
