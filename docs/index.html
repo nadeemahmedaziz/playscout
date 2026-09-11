@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Internal market-research dashboard for discovering newly released Google Play games." />
+  <title>PlayScout — New Game Tracker</title>
+  <style>
+    :root{--ink:#172019;--muted:#69726b;--line:#e4e9e5;--paper:#fff;--bg:#f3f6f2;--green:#176b45;--green2:#2b8a5b;--lime:#d9f36b;--soft:#edf6ef;--danger:#a33a3a;--shadow:0 18px 50px rgba(31,56,39,.09)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif} button,input{font:inherit} button{cursor:pointer}
+    .shell{min-height:100vh}.topbar{height:72px;background:#102d20;color:white;display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1200px)/2));border-bottom:1px solid rgba(255,255,255,.1)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.02em;font-size:19px}.brandmark{width:36px;height:36px;border-radius:11px;background:var(--lime);color:#123824;display:grid;place-items:center;box-shadow:inset 0 -4px 10px rgba(18,56,36,.12)}
+    .topnote{font-size:13px;color:#bcd0c4;display:flex;align-items:center;gap:8px}.dot{width:8px;height:8px;background:#68df9c;border-radius:50%;box-shadow:0 0 0 4px rgba(104,223,156,.12)}
+    main{max-width:1200px;margin:auto;padding:40px 24px 64px}.intro{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:26px}.eyebrow{text-transform:uppercase;letter-spacing:.13em;color:var(--green);font-weight:800;font-size:12px}.intro h1{font-size:clamp(29px,4vw,44px);line-height:1.07;letter-spacing:-.045em;margin:7px 0 8px}.intro p{margin:0;color:var(--muted);max-width:610px;font-size:16px}
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.search{padding:18px;display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:14px;align-items:end}.field label{display:block;font-size:13px;font-weight:750;margin:0 0 7px}.field input{width:100%;height:49px;border:1px solid #cfd8d1;border-radius:12px;padding:0 14px;color:var(--ink);background:#fbfcfb;outline:none}.field input:focus{border-color:var(--green2);box-shadow:0 0 0 4px rgba(43,138,91,.11)}
+    .primary{height:49px;border:0;border-radius:12px;background:var(--green);color:white;font-weight:750;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:9px;min-width:154px;transition:.18s}.primary:hover{background:#105b39;transform:translateY(-1px)}.primary:disabled{opacity:.65;cursor:wait;transform:none}.spinner{display:none;width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .notice{margin-top:12px;padding:11px 14px;border-radius:11px;background:#fff9df;border:1px solid #efe3a9;color:#6e5c18;font-size:13px;display:flex;gap:9px;align-items:flex-start}.notice svg{flex:0 0 auto;margin-top:2px}.notice.live{background:var(--soft);border-color:#cde4d4;color:#27583b}.notice.error{background:#fff0f0;border-color:#efcccc;color:var(--danger)}
+    .results-head{margin:34px 0 13px;display:flex;justify-content:space-between;align-items:center;gap:16px}.results-head h2{font-size:20px;letter-spacing:-.02em;margin:0}.count{background:#e5f0e8;color:#285a3d;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:800}.table-wrap{overflow:hidden}.table{width:100%;border-collapse:collapse}.table th{background:#f8faf8;color:#788078;text-transform:uppercase;letter-spacing:.08em;font-size:11px;text-align:left;padding:13px 16px;border-bottom:1px solid var(--line)}.table td{padding:16px;border-bottom:1px solid var(--line);vertical-align:middle}.table tr:last-child td{border-bottom:0}.game{display:flex;align-items:center;gap:13px;min-width:260px}.icon{width:48px;height:48px;border-radius:12px;object-fit:cover;background:#e9eee9;border:1px solid rgba(0,0,0,.06)}.game-name{font-weight:780;line-height:1.25}.pkg{font-size:12px;color:#899188;margin-top:3px}.category{display:inline-block;padding:5px 9px;border-radius:8px;background:#f0f3f0;color:#4e5850;font-size:12px;font-weight:700}.store{display:inline-flex;align-items:center;gap:5px;color:var(--green);font-weight:760;text-decoration:none;white-space:nowrap}.store:hover{text-decoration:underline}.empty{padding:64px 20px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}.hidden{display:none!important}
+    details{margin-top:26px;background:white;border:1px solid var(--line);border-radius:16px;padding:0 18px}summary{padding:16px 0;font-weight:780;cursor:pointer}details p,details li{color:var(--muted)}code{background:#edf1ed;padding:2px 5px;border-radius:5px;color:#244b34}.codebox{position:relative;background:#10251a;color:#d9eadf;border-radius:12px;padding:16px;overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre}.copy{position:absolute;right:9px;top:9px;background:#284b37;color:white;border:1px solid #456552;border-radius:7px;padding:5px 8px;font-size:11px}
+    footer{color:#8a928c;font-size:12px;text-align:center;margin-top:28px}
+    @media(max-width:760px){.topnote{display:none}main{padding:28px 14px 48px}.intro{align-items:start}.search{grid-template-columns:1fr}.primary{width:100%}.table thead{display:none}.table,.table tbody,.table tr,.table td{display:block}.table tr{padding:14px;border-bottom:1px solid var(--line)}.table tr:last-child{border:0}.table td{border:0;padding:6px 2px}.table td:before{content:attr(data-label);display:block;color:#899188;font-size:11px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}.table td:first-child:before{display:none}.game{min-width:0}.table-wrap{overflow:visible}.results-head{margin-top:26px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar"><div class="brand"><span class="brandmark">▶</span> PlayScout</div><div class="topnote"><span class="dot"></span> Market intelligence workspace</div></header>
+    <main>
+      <section class="intro"><div><div class="eyebrow">Google Play Research</div><h1>Find games launched<br>on a specific day.</h1><p>Discover titles by their initial release date—not the date of their latest update.</p></div></section>
+      <section class="panel search" aria-label="Game release search">
+        <div class="field"><label for="date">Initial release date</label><input id="date" type="date" required /></div>
+        <button class="primary" id="fetchBtn"><span class="spinner" id="spinner"></span><span id="buttonText">Fetch games</span></button>
+      </section>
+      <div class="notice live" id="status" role="status"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Fast cloud dashboard ready. The game index refreshes automatically every 6 hours.</span></div>
+
+      <section aria-live="polite">
+        <div class="results-head"><h2 id="resultTitle">Latest results</h2><span class="count" id="count">0 games</span></div>
+        <div class="panel table-wrap" id="tableWrap">
+          <table class="table"><thead><tr><th>Game</th><th>Developer</th><th>Category</th><th>Initial release</th><th>Store</th></tr></thead><tbody id="rows"></tbody></table>
+          <div class="empty" id="empty"><strong>Select a date to begin</strong>Matching games will appear here.</div>
+        </div>
+      </section>
+
+      <details><summary>How the automatic scan works</summary><p>A free scheduled scanner checks ranked Google Play game collections every 6 hours and updates this dashboard's game index. Selecting a date filters the saved index instantly by the app's initial <code>released</code> date.</p><p>Google Play provides no complete public “all games released on this date” directory. Results are accurate for discovered games, but very small or unranked launches can be missed.</p></details>
+      <footer>Internal research tool · Verify critical findings on the linked store page</footer>
+    </main>
+  </div>
+  <script>
+    const DATA_FILE = './data/games.json';
+
+    const $ = (id) => document.getElementById(id);
+    const dateInput = $('date'), button = $('fetchBtn'), rows = $('rows'), empty = $('empty');
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    const escapeHTML = (v='') => String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    const prettyDate = iso => new Intl.DateTimeFormat('en', {year:'numeric',month:'short',day:'numeric',timeZone:'UTC'}).format(new Date(iso+'T00:00:00Z'));
+    const safeStoreUrl = (url, appId) => {
+      try { const u = new URL(url || `https://play.google.com/store/apps/details?id=${encodeURIComponent(appId)}`); return u.hostname === 'play.google.com' ? u.href : '#'; } catch { return '#'; }
+    };
+
+    function fallbackIcon(name){
+      const letter = escapeHTML(name.charAt(0).toUpperCase());
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" rx="22" fill="#d9f36b"/><text x="48" y="61" text-anchor="middle" font-family="Arial" font-size="43" font-weight="700" fill="#17452d">${letter}</text></svg>`;
+      return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+    }
+
+    function render(games, date){
+      const exact = games.filter(g => g.initialReleaseDate === date);
+      $('count').textContent = `${exact.length} game${exact.length === 1 ? '' : 's'}`;
+      $('resultTitle').textContent = `Released ${prettyDate(date)}`;
+      rows.innerHTML = exact.map(g => `<tr>
+        <td><div class="game"><img class="icon" src="${escapeHTML(g.icon || fallbackIcon(g.name || '?'))}" alt="" onerror="this.src='${fallbackIcon('?')}'"><div><div class="game-name">${escapeHTML(g.name)}</div><div class="pkg">${escapeHTML(g.appId)}</div></div></div></td>
+        <td data-label="Developer">${escapeHTML(g.developer || 'Unknown')}</td><td data-label="Category"><span class="category">${escapeHTML(g.category || 'Game')}</span></td>
+        <td data-label="Initial release">${prettyDate(g.initialReleaseDate)}</td><td data-label="Store"><a class="store" href="${safeStoreUrl(g.url,g.appId)}" target="_blank" rel="noopener">Open game ↗</a></td>
+      </tr>`).join('');
+      empty.classList.toggle('hidden', exact.length > 0); rows.closest('table').classList.toggle('hidden', exact.length === 0);
+      if(!exact.length) empty.innerHTML = '<strong>No first-time releases found</strong>Try another date or confirm your scraper index is current.';
+    }
+
+    async function fetchGames(){
+      const date = dateInput.value; if(!date){ dateInput.focus(); return; }
+      button.disabled = true; $('spinner').style.display='block'; $('buttonText').textContent='Fetching…';
+      try {
+        let games;
+        const response = await fetch(`${DATA_FILE}?v=${Date.now()}`);
+        const data = await response.json();
+        if(!response.ok) throw new Error(`Game index unavailable (${response.status})`);
+        games = Array.isArray(data) ? data : data.games;
+        if(!Array.isArray(games)) throw new Error('Invalid scanner response.');
+        $('status').className='notice live'; $('status').querySelector('span').textContent=`Game index loaded · ${games.length} apps · Last scan: ${data.updatedAt ? new Date(data.updatedAt).toLocaleString() : 'pending'}.`;
+        render(games,date);
+      } catch(e){
+        rows.innerHTML=''; rows.closest('table').classList.add('hidden'); empty.classList.remove('hidden'); empty.innerHTML='<strong>Could not retrieve games</strong>Check the backend URL, server logs, and CORS settings.';
+        $('count').textContent='0 games'; $('status').className='notice error'; $('status').querySelector('span').textContent=e.message;
+      } finally { button.disabled=false; $('spinner').style.display='none'; $('buttonText').textContent='Fetch games'; }
+    }
+    button.addEventListener('click', fetchGames); dateInput.addEventListener('keydown', e => {if(e.key==='Enter') fetchGames()});
+    document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => {await navigator.clipboard.writeText($(btn.dataset.copy).innerText); btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',1200)}));
+  </script>
+</body>
+</html>
