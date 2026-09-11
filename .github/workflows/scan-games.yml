@@ -1,9 +1,28 @@
-name: Update Google Play game index
+name: Scan Google Play Games
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Scan mode
+        required: true
+        default: normal
+        type: choice
+        options:
+          - normal
+          - deep
+          - backfill
+
+      from_date:
+        description: Backfill From (YYYY-MM-DD)
+        required: false
+
+      to_date:
+        description: Backfill To (YYYY-MM-DD)
+        required: false
+
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 */3 * * *"
 
 permissions:
   contents: write
@@ -15,24 +34,33 @@ concurrency:
 jobs:
   scan:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330
+
+    env:
+      SCAN_MODE: ${{ inputs.mode || 'normal' }}
+      FROM_DATE: ${{ inputs.from_date }}
+      TO_DATE: ${{ inputs.to_date }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Download repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      - name: Install packages
+        run: npm ci
 
-      - run: npm run scan
+      - name: Scan Google Play
+        run: node scanner.mjs
 
-      - name: Save updated index
+      - name: Save updated catalog
         run: |
           git config user.name "PlayScout Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/data/games.json
-          git diff --cached --quiet || git commit -m "Update game index"
+          git add data/games.json docs/data/games.json
+          git diff --cached --quiet || git commit -m "Update PlayScout catalog"
           git push
